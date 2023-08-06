@@ -22,9 +22,39 @@ search_photos = 'https://api.unsplash.com/search/photos/?query={}&client_id={}'
 #     print(f"\033[0;31m{d['errors'][0]}\n\nQuitting...\033[0m")
 #     exit(0)
 
+
+
+#################################
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Initialize the Pyrogram client (but don't start it yet)
+# client = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 Bot = Client('unsplash-bot',API_ID,API_HASH,bot_token=BOT_TOKEN)
 
+@app.route('/healthcheck', methods=['GET'])
+def healthcheck():
+    try:
+        print("received request for healthcheck")
+        return {"code": 0, "message": "success"}  # You can return a dictionary, a string or a `simple_http_server.simple_http_server.Response` object.
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
+
+# Function to start the Pyrogram Bot client
+def start_pyrogram_client():
+    print('\033[32mBot has booted.')
+    Bot.run()
+    print('\nBot has stoped.\033[0m')
+        
+
+# Start the Pyrogram client before the first request is handled
+app.before_first_request(start_pyrogram_client)
+
+
+
+################################
 
 privateStart = '''
 Hey {},
@@ -223,17 +253,6 @@ async def back_cb(c,q: types.CallbackQuery):
         reply_markup=privateButton
     )
 
-
-@Bot.route('/healthcheck', methods=['GET'])
-def healthcheck():
-    try:
-        print("received request for healthcheck")
-        return {"code": 0, "message": "success"}  # You can return a dictionary, a string or a `simple_http_server.simple_http_server.Response` object.
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-
-print('\033[32mBot has booted.')
-Bot.run()
-print('\nBot has stoped.\033[0m')
+if __name__ == '__main__':
+    # The Flask app will automatically run the Pyrogram client
+    app.run(debug=True)
