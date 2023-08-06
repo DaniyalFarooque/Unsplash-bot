@@ -255,4 +255,4 @@ async def back_cb(c,q: types.CallbackQuery):
 
 if __name__ == '__main__':
     # The Flask app will automatically run the Pyrogram client
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80)
